@@ -1,7 +1,7 @@
 import numpy as np
 
 # Recebe um valor de S e carrega duas matrizes na saída
-def A_FileToMatrix(s):
+def FileToMatrix(s):
 
     string = './data/A'+str(s)+'x'+str(s)+'.txt'
     string2= './data/B'+str(s)+'x'+str(s)+'.txt'
@@ -44,7 +44,7 @@ def MultiplicaMatrizes(a,b):
     return c 
   
 
-matrizA, matrizB  =  A_FileToMatrix(8)
+matrizA, matrizB  =  FileToMatrix(8)
 # :D
 #print(np.matmul(matrizA,matrizB))
 print(MultiplicaMatrizes(matrizA,matrizB))
