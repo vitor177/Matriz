@@ -36,9 +36,11 @@ def MultiplicaMatrizes(a,b):
             for k in range(len(b)):
                 c[i][j] += a[i][k] * b[k][j]
     return c 
+
+
   
 
-matrizA, matrizB  =  FileToMatrix(8)
+matrizA, matrizB  =  FileToMatrix(4)
 # :D
 #print(np.matmul(matrizA,matrizB))
-print(MultiplicaMatrizes(matrizA,matrizB))
+print(np.array(MultiplicaMatrizes(matrizA,matrizB)))
