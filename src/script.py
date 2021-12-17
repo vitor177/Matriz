@@ -9,15 +9,9 @@ def FileToMatrix(s):
     arquivoA = open(string, 'r')
     arquivoB = open(string2, 'r')
 
-    a = []
-    for line in arquivoA.readlines():
-        for x in line.split(' '):
-            a.append(x)
+    a = [[x for x in line.split()] for line in arquivoA.readlines()]
+    b = [[x for x in line.split()] for line in arquivoB.readlines()]
 
-    b = []
-    for line in arquivoB.readlines():
-        for x in line.split(' '):
-            b.append(x)
     for i in a:
         if i=='\n' or i==str(s)+'\n':
             a.remove(i)
