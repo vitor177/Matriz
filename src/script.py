@@ -40,7 +40,8 @@ def MultiplicaMatrizes(a,b):
 
   
 
-matrizA, matrizB  =  FileToMatrix(4)
+matrizA, matrizB  =  FileToMatrix(64)
 # :D
 #print(np.matmul(matrizA,matrizB))
+np.set_printoptions(threshold=np.inf)
 print(np.array(MultiplicaMatrizes(matrizA,matrizB)))
