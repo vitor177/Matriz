@@ -32,16 +32,59 @@ def FileToMatrix(s):
 
 
 
-def MultiplicaMatrizes(a,b):
-    c = [[0 for x in range(len(a))] for y in range(len(b[0]))]    
-    for i in range(len(a)):
-        for j in range(len(b[0])):
-            for k in range(len(b)):
-                c[i][j] += a[i][k] * b[k][j]
-    return c 
+# def MultiplicaMatrizes(a,b):
+#     c = [[0 for x in range(len(a))] for y in range(len(b[0]))]    
+#     for i in range(len(a)):
+#         for j in range(len(b[0])):
+#             for k in range(len(b)):
+#                 c[i][j] += a[i][k] * b[k][j]
+#     return c
 
-threads = []
+def MultiplicaMatrizes (matrizA, matrizB):
+    threads = []
+    result=[]
+    for i in range(len(matrizA)):
+        linha = matrizA[i]
+        resultLinha=[]
+        for j in range(len(matrizB)):
+            coluna =[]
+            for k in range (len(matrizB)):
+                coluna.append(matrizB[k][j])
+            MultiplicaVetores(linha, coluna, resultLinha)
 
+        result.append(resultLinha)
+    
+    return np.array(result) 
+
+def MultiplicaVetores (a,b, resultLinha):
+    soma = 0
+    for i in range (len(a)):
+        soma+=(a[i]*b[i])
+
+    resultLinha.append(soma)
+
+
+def concorrente (matrizA, matrizB):
+    threads = []
+    result=[]
+    for i in range(len(matrizA)):
+        linha = matrizA[i]
+        resultLinha=[]
+        for j in range(len(matrizB)):
+            coluna =[]
+            for k in range (len(matrizB)):
+                coluna.append(matrizB[k][j])
+
+            x = threading.Thread(target = MultiplicaVetores, args=(linha, coluna, resultLinha))
+            x.start()
+            threads.append(x)
+
+        result.append(resultLinha)
+
+    for thread in threads:
+        thread.join()
+    
+    return np.array(result)
 
 
 #for i in range(len(matrizA)):
@@ -50,23 +93,30 @@ threads = []
 #for i in range(len(matrizB[0])):
     #print(matrizB[i][0])
 lista_tempos = []
-for i in [4,8,16,32,64,128, 256, 512, 1024, 2048]:
+print("SEQUENCIAL")
+# for i in [4,8,16,32,64,128, 256, 512, 1024, 2048]:
+# for i in [4,8,16,32,64,128, 256, 512]:
+for i in [4, 8]:
     matrizA, matrizB  =  FileToMatrix(i)
     start_time = time.time()
+    print(np.array(MultiplicaMatrizes(matrizA,matrizB)))
     np.array(MultiplicaMatrizes(matrizA,matrizB))
     end_time = time.time()
     lista_tempos.append(end_time-start_time)
 
 print(lista_tempos)
-#print(np.array(MultiplicaMatrizes(matrizA[0][i],matrizB)))
+lista_tempos = []
+print("CONCORRÊNCIA")
+# for i in [4,8,16,32,64,128, 256, 512]:
+for i in [4, 8]:
+    matrizA, matrizB  =  FileToMatrix(i)
+    start_time = time.time()
+    print(np.array(concorrente(matrizA,matrizB)))
+    np.array(concorrente(matrizA,matrizB))
+    end_time = time.time()
+    lista_tempos.append(end_time-start_time)
 
-#for i in range(len(matrizA)):
-#    for j in range(len(matrizB[0])):
-#        x = threading.Thread(target = MultiplicaMatrizes, args=(matrizA[i], matrizB[j].T))
-#        threads.append(x)
-#        x.start()
-#for index, thread in enumerate(threads):
-#    thread.join()
+print(lista_tempos)
 
   
 #np.set_printoptions(threshold=np.inf)
