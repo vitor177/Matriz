@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+import os
 import numpy as np
 import time
 import timeit
@@ -8,9 +9,9 @@ import threading
 
 # Recebe um valor de S e carrega duas matrizes na saída
 def FileToMatrix(s):
-
-    string = './data/A'+str(s)+'x'+str(s)+'.txt'
-    string2= './data/B'+str(s)+'x'+str(s)+'.txt'
+    path_dir = os.path.dirname(__file__)
+    string = path_dir+'/../data/A'+str(s)+'x'+str(s)+'.txt'
+    string2=  path_dir+'/../data/B'+str(s)+'x'+str(s)+'.txt'
 
     arquivoA = open(string, 'r')
     arquivoB = open(string2, 'r')
@@ -79,6 +80,8 @@ def concorrente (a, b):
 def main(argv):
     dimensao = int(argv[0])
     tipoCodigo = str(argv[1])
+    script_dir = os.path.dirname(__file__)
+    print(script_dir)
     if(tipoCodigo=="S"):
         print("SEQUENCIAL")
         matrizA, matrizB  =  FileToMatrix(dimensao)
