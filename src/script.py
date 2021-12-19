@@ -28,78 +28,61 @@ def FileToMatrix(s):
     data = data.reshape((s,s))
     datab = datab.reshape((s,s))
 
-    return data.astype(int), datab.astype(int)
+    return data.astype(np.float32), datab.astype(np.float32)
 
 
+def MultiplicaMatrizes (a, b):
+    c = [[0 for x in range(len(a))] for y in range(len(b[0]))]    
+    for i in range(len(a)):
+        for j in range(len(b[0])):
+            for k in range(len(b)):
+                c[i][j] += a[i][k] * b[k][j]
+    return c 
 
-# def MultiplicaMatrizes(a,b):
-#     c = [[0 for x in range(len(a))] for y in range(len(b[0]))]    
-#     for i in range(len(a)):
-#         for j in range(len(b[0])):
-#             for k in range(len(b)):
-#                 c[i][j] += a[i][k] * b[k][j]
-#     return c
+def blocoModelado(arr, nrows, ncols):
+    h, w = arr.shape
+    n, m = h // nrows, w // ncols
+    return arr.reshape(nrows, n, ncols, m).swapaxes(1, 2)
 
-def MultiplicaMatrizes (matrizA, matrizB):
+def do_dot(a, b, result):
+    result[::] = np.array(MultiplicaMatrizes(a, b))
+
+def concorrente (a, b, tamanho):
+    result = np.empty((a.shape[0], b.shape[1]), dtype=a.dtype)
+    num1 = 2
+    num2 = 2
+    if(len(a)>32):
+        num1=4
+        num2=8
+    elif(len(a)>128):
+        num1=8
+        num2=16
+    elif(len(a)>512):
+        num1=16
+        num2=32
+    result_bloco = blocoModelado(result, num2, num2)
+    a_bloco = blocoModelado(a, num2, 1)
+    b_bloco = blocoModelado(b, 1, num2)
+
     threads = []
-    result=[]
-    for i in range(len(matrizA)):
-        linha = matrizA[i]
-        resultLinha=[]
-        for j in range(len(matrizB)):
-            coluna =[]
-            for k in range (len(matrizB)):
-                coluna.append(matrizB[k][j])
-            MultiplicaVetores(linha, coluna, resultLinha)
-
-        result.append(resultLinha)
     
-    return np.array(result) 
-
-def MultiplicaVetores (a,b, resultLinha):
-    soma = 0
-    for i in range (len(a)):
-        soma+=(a[i]*b[i])
-
-    resultLinha.append(soma)
-
-
-def concorrente (matrizA, matrizB):
-    threads = []
-    result=[]
-    for i in range(len(matrizA)):
-        linha = matrizA[i]
-        resultLinha=[]
-        for j in range(len(matrizB)):
-            coluna =[]
-            for k in range (len(matrizB)):
-                coluna.append(matrizB[k][j])
-
-            x = threading.Thread(target = MultiplicaVetores, args=(linha, coluna, resultLinha))
+    for i in range(num1):
+        for j in range(num2):
+            x = threading.Thread(target = do_dot, args=(a_bloco[i, 0, :, :], b_bloco[0, j, :, :], result_bloco[i, j, :, :]))
             x.start()
             threads.append(x)
-
-        result.append(resultLinha)
 
     for thread in threads:
         thread.join()
     
-    return np.array(result)
+    return result
 
-
-#for i in range(len(matrizA)):
-    #print(matrizA[0][i])
-#print("--------------------------------")
-#for i in range(len(matrizB[0])):
-    #print(matrizB[i][0])
 lista_tempos = []
 print("SEQUENCIAL")
 # for i in [4,8,16,32,64,128, 256, 512, 1024, 2048]:
-# for i in [4,8,16,32,64,128, 256, 512]:
-for i in [4, 8]:
+for i in [4,8,16,32,64,128, 256, 512]:
     matrizA, matrizB  =  FileToMatrix(i)
     start_time = time.time()
-    print(np.array(MultiplicaMatrizes(matrizA,matrizB)))
     np.array(MultiplicaMatrizes(matrizA,matrizB))
     end_time = time.time()
     lista_tempos.append(end_time-start_time)
@@ -107,19 +90,11 @@ for i in [4, 8]:
 print(lista_tempos)
 lista_tempos = []
 print("CONCORRÊNCIA")
-# for i in [4,8,16,32,64,128, 256, 512]:
-for i in [4, 8]:
+for i in [1024]:
     matrizA, matrizB  =  FileToMatrix(i)
     start_time = time.time()
-    print(np.array(concorrente(matrizA,matrizB)))
-    np.array(concorrente(matrizA,matrizB))
+    concorrente(matrizA,matrizB, i)
     end_time = time.time()
     lista_tempos.append(end_time-start_time)
 
 print(lista_tempos)
-
-  
-#np.set_printoptions(threshold=np.inf)
-
-
-#print(end_time-start_time)
