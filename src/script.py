@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import sys
 import numpy as np
 import time
 import timeit
@@ -47,7 +47,7 @@ def blocoModelado(arr, nrows, ncols):
 def do_dot(a, b, result):
     result[::] = np.array(MultiplicaMatrizes(a, b))
 
-def concorrente (a, b, tamanho):
+def concorrente (a, b):
     result = np.empty((a.shape[0], b.shape[1]), dtype=a.dtype)
     num1 = 2
     num2 = 2
@@ -76,25 +76,23 @@ def concorrente (a, b, tamanho):
         thread.join()
     
     return result
+def main(argv):
+    dimensao = int(argv[0])
+    tipoCodigo = str(argv[1])
+    if(tipoCodigo=="S"):
+        print("SEQUENCIAL")
+        matrizA, matrizB  =  FileToMatrix(dimensao)
+        start_time = time.time()
+        np.array(MultiplicaMatrizes(matrizA,matrizB))
+        end_time = time.time()
+        print(end_time-start_time)
+    elif(tipoCodigo=="C"):
+        print("CONCORRÊNCIA")
+        matrizA, matrizB  =  FileToMatrix(dimensao)
+        start_time = time.time()
+        concorrente(matrizA,matrizB)
+        end_time = time.time()
+        print(end_time-start_time)
 
-lista_tempos = []
-print("SEQUENCIAL")
-# for i in [4,8,16,32,64,128, 256, 512, 1024, 2048]:
-for i in [4,8,16,32,64,128, 256, 512]:
-    matrizA, matrizB  =  FileToMatrix(i)
-    start_time = time.time()
-    np.array(MultiplicaMatrizes(matrizA,matrizB))
-    end_time = time.time()
-    lista_tempos.append(end_time-start_time)
-
-print(lista_tempos)
-lista_tempos = []
-print("CONCORRÊNCIA")
-for i in [1024]:
-    matrizA, matrizB  =  FileToMatrix(i)
-    start_time = time.time()
-    concorrente(matrizA,matrizB, i)
-    end_time = time.time()
-    lista_tempos.append(end_time-start_time)
-
-print(lista_tempos)
+if __name__ == "__main__":
+   main(sys.argv[1:])
