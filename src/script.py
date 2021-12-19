@@ -31,6 +31,11 @@ def FileToMatrix(s):
 
     return data.astype(np.float32), datab.astype(np.float32)
 
+def writeFileMatriz(matriz, dimensao):
+    path_dir = os.path.dirname(__file__)
+    caminho = path_dir+'/../resultados/C'+str(dimensao)+'x'+str(dimensao)+'.txt'
+    np.savetxt(caminho, matriz,'%5.0f', newline='\n')
+
 
 def MultiplicaMatrizes (a, b):
     c = [[0 for x in range(len(a))] for y in range(len(b[0]))]    
@@ -46,7 +51,7 @@ def blocoModelado(arr, nrows, ncols):
     return arr.reshape(nrows, n, ncols, m).swapaxes(1, 2)
 
 def do_dot(a, b, result):
-    result[::] = np.array(MultiplicaMatrizes(a, b))
+    result[:] = np.array(MultiplicaMatrizes(a, b))
 
 def concorrente (a, b):
     result = np.empty((a.shape[0], b.shape[1]), dtype=a.dtype)
@@ -59,8 +64,8 @@ def concorrente (a, b):
         num1=8
         num2=16
     elif(len(a)>512):
-        num1=16
-        num2=32
+        num1=256
+        num2=512
     result_bloco = blocoModelado(result, num2, num2)
     a_bloco = blocoModelado(a, num2, 1)
     b_bloco = blocoModelado(b, 1, num2)
@@ -80,20 +85,20 @@ def concorrente (a, b):
 def main(argv):
     dimensao = int(argv[0])
     tipoCodigo = str(argv[1])
-    script_dir = os.path.dirname(__file__)
-    print(script_dir)
     if(tipoCodigo=="S"):
         print("SEQUENCIAL")
         matrizA, matrizB  =  FileToMatrix(dimensao)
         start_time = time.time()
-        np.array(MultiplicaMatrizes(matrizA,matrizB))
+        matriz = np.array(MultiplicaMatrizes(matrizA,matrizB))
+        writeFileMatriz(matriz, dimensao)
         end_time = time.time()
         print(end_time-start_time)
     elif(tipoCodigo=="C"):
         print("CONCORRÊNCIA")
         matrizA, matrizB  =  FileToMatrix(dimensao)
         start_time = time.time()
-        concorrente(matrizA,matrizB)
+        matriz = concorrente(matrizA,matrizB)
+        writeFileMatriz(matriz, dimensao)
         end_time = time.time()
         print(end_time-start_time)
 
