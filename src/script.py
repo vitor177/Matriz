@@ -64,8 +64,8 @@ def concorrente (a, b):
         num1=8
         num2=16
     elif(len(a)>512):
-        num1=256
-        num2=512
+        num1=32
+        num2=64
     result_bloco = blocoModelado(result, num2, num2)
     a_bloco = blocoModelado(a, num2, 1)
     b_bloco = blocoModelado(b, 1, num2)
